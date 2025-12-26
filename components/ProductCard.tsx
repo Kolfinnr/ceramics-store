@@ -12,40 +12,29 @@ export default function ProductCard({ product }: { product: any }) {
   return (
     <a
       href={`/store/${slug}`}
-      style={{
-        display: "block",
-        border: "1px solid #eee",
-        borderRadius: 14,
-        padding: 12,
-        textDecoration: "none",
-        color: "inherit",
-        opacity: available ? 1 : 0.7,
-      }}
+      className="card product-card"
+      style={{ opacity: available ? 1 : 0.7 }}
     >
       {img && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={img}
           alt={photos?.[0]?.alt || ""}
-          style={{
-            width: "100%",
-            height: 260,
-            objectFit: "cover",
-            borderRadius: 12,
-            border: "1px solid #eee",
-          }}
+          className="product-image"
         />
       )}
 
-      <div style={{ marginTop: 10, display: "grid", gap: 6 }}>
-        <div style={{ fontWeight: 700 }}>{title}</div>
+      <div style={{ padding: "14px 16px", display: "grid", gap: 6 }}>
+        <div style={{ fontWeight: 700, fontSize: 16 }}>{title}</div>
 
         {typeof price === "number" && (
-          <div style={{ color: "#444" }}>{price} PLN</div>
+          <div className="muted">{price} PLN</div>
         )}
 
         {!available && (
-          <div style={{ color: "#b00", fontWeight: 800 }}>Sold</div>
+          <div className="pill badge-sold" style={{ width: "fit-content" }}>
+            Sold
+          </div>
         )}
       </div>
     </a>
