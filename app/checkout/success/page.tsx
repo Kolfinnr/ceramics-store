@@ -1,4 +1,13 @@
+"use client";
+
+import { useEffect } from "react";
+import { clearCart } from "@/lib/cart-storage";
+
 export default function CheckoutSuccessPage() {
+  useEffect(() => {
+    clearCart();
+  }, []);
+
   return (
     <main style={{ padding: "40px 16px", maxWidth: 720, margin: "0 auto" }}>
       <h1 style={{ fontSize: 32, marginBottom: 12 }}>Payment successful</h1>

@@ -35,7 +35,8 @@ async function sbMgmt<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function createOrderStory(args: {
   orderId: string;
-  productSlug: string;
+  productSlug?: string;
+  productSlugs?: string[];
   status?: "paid" | "shipped" | "closed";
   customer: {
     name: string;
@@ -54,6 +55,13 @@ export async function createOrderStory(args: {
   // slug inside the orders folder
   const slug = `orders/${args.orderId}`;
 
+  const resolvedSlugs =
+    args.productSlugs && args.productSlugs.length > 0
+      ? args.productSlugs
+      : args.productSlug
+        ? [args.productSlug]
+        : [];
+
   const payload: StoryblokCreateStoryPayload = {
     story: {
       name: args.orderId,
@@ -62,7 +70,8 @@ export async function createOrderStory(args: {
       content: {
         component: "order",
         order_id: args.orderId,
-        product_slug: args.productSlug,
+        product_slug: resolvedSlugs.join(", "),
+        product_slugs: resolvedSlugs,
         status: args.status ?? "paid",
         customer_name: args.customer.name,
         email: args.customer.email,

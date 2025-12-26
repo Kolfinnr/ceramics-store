@@ -25,11 +25,23 @@ export async function POST(req: Request) {
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const productSlug = session.metadata?.productSlug;
+      const productSlugsRaw =
+        session.metadata?.productSlugs ?? JSON.stringify([session.metadata?.productSlug]);
+      const productSlugs = Array.isArray(productSlugsRaw)
+        ? productSlugsRaw
+        : (() => {
+            try {
+              return JSON.parse(productSlugsRaw ?? "[]") as string[];
+            } catch {
+              return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
+            }
+          })();
 
-      if (productSlug) {
-        await redis.set(`status:product:${productSlug}`, "sold");
-        await redis.del(`lock:product:${productSlug}`);
+      if (productSlugs.length > 0) {
+        for (const slug of productSlugs) {
+          await redis.set(`status:product:${slug}`, "sold");
+          await redis.del(`lock:product:${slug}`);
+        }
 
         const customerDetails = session.customer_details;
         const shippingDetails = session.shipping_details;
@@ -38,7 +50,7 @@ export async function POST(req: Request) {
         try {
           await createOrderStory({
             orderId: session.id,
-            productSlug,
+            productSlugs,
             status: "paid",
             customer: {
               name: shippingDetails?.name ?? customerDetails?.name ?? "Unknown",
@@ -61,9 +73,19 @@ export async function POST(req: Request) {
       event.type === "checkout.session.async_payment_failed"
     ) {
       const session = event.data.object as Stripe.Checkout.Session;
-      const productSlug = session.metadata?.productSlug;
-      if (productSlug) {
-        await redis.del(`lock:product:${productSlug}`);
+      const productSlugsRaw =
+        session.metadata?.productSlugs ?? JSON.stringify([session.metadata?.productSlug]);
+      const productSlugs = Array.isArray(productSlugsRaw)
+        ? productSlugsRaw
+        : (() => {
+            try {
+              return JSON.parse(productSlugsRaw ?? "[]") as string[];
+            } catch {
+              return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
+            }
+          })();
+      for (const slug of productSlugs) {
+        await redis.del(`lock:product:${slug}`);
       }
     }
 
