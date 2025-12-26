@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { redis } from "@/lib/redis";
+import { createOrderStory } from "@/lib/storyblok-management";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-01-27.acacia",
@@ -29,10 +30,36 @@ export async function POST(req: Request) {
       if (productSlug) {
         await redis.set(`status:product:${productSlug}`, "sold");
         await redis.del(`lock:product:${productSlug}`);
+
+        const customerDetails = session.customer_details;
+        const shippingDetails = session.shipping_details;
+        const address = shippingDetails?.address ?? customerDetails?.address;
+
+        try {
+          await createOrderStory({
+            orderId: session.id,
+            productSlug,
+            status: "paid",
+            customer: {
+              name: shippingDetails?.name ?? customerDetails?.name ?? "Unknown",
+              email: customerDetails?.email ?? "Unknown",
+              phone: customerDetails?.phone ?? "Unknown",
+              address1: address?.line1 ?? "Unknown",
+              postalCode: address?.postal_code ?? "Unknown",
+              city: address?.city ?? "Unknown",
+              country: address?.country ?? "Unknown",
+            },
+          });
+        } catch (error) {
+          console.error("Failed to create Storyblok order:", error);
+        }
       }
     }
 
-    if (event.type === "checkout.session.expired") {
+    if (
+      event.type === "checkout.session.expired" ||
+      event.type === "checkout.session.async_payment_failed"
+    ) {
       const session = event.data.object as Stripe.Checkout.Session;
       const productSlug = session.metadata?.productSlug;
       if (productSlug) {
