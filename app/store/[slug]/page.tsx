@@ -1,6 +1,7 @@
 import StoryblokClient from "storyblok-js-client";
 import { notFound } from "next/navigation";
 import CeramicItem from "../../../components/CeramicItem";
+import { redis } from "@/lib/redis";
 
 export default async function ProductPage({
   params,
@@ -18,8 +19,10 @@ export default async function ProductPage({
     const { data } = await sb.get(`cdn/stories/products/${slug}`, {
       version: "draft",
     });
+    const redisStatus = await redis.get<string>(`status:product:${slug}`);
+    const isRedisSold = redisStatus === "sold";
 
-    return <CeramicItem story={data.story} />;
+    return <CeramicItem story={data.story} isRedisSold={isRedisSold} />;
   } catch (e) {
     return notFound();
   }

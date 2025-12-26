@@ -11,14 +11,13 @@ type StoryblokCreateStoryPayload = {
   publish?: number; // 1 to publish
 };
 
-const mgmtToken = process.env.STORYBLOK_MANAGEMENT_TOKEN;
-const spaceId = process.env.STORYBLOK_SPACE_ID;
-
-if (!mgmtToken || !spaceId) {
-  throw new Error("Missing STORYBLOK_MANAGEMENT_TOKEN or STORYBLOK_SPACE_ID");
-}
-
 async function sbMgmt<T>(path: string, init?: RequestInit): Promise<T> {
+  const mgmtToken = process.env.STORYBLOK_MANAGEMENT_TOKEN;
+  const spaceId = process.env.STORYBLOK_SPACE_ID;
+  if (!mgmtToken || !spaceId) {
+    throw new Error("Missing STORYBLOK_MANAGEMENT_TOKEN or STORYBLOK_SPACE_ID");
+  }
+
   const res = await fetch(`https://mapi.storyblok.com/v1/spaces/${spaceId}${path}`, {
     ...init,
     headers: {
@@ -37,6 +36,7 @@ async function sbMgmt<T>(path: string, init?: RequestInit): Promise<T> {
 export async function createOrderStory(args: {
   orderId: string;
   productSlug: string;
+  status?: "paid" | "shipped" | "closed";
   customer: {
     name: string;
     email: string;
@@ -63,7 +63,7 @@ export async function createOrderStory(args: {
         component: "order",
         order_id: args.orderId,
         product_slug: args.productSlug,
-        status: "PENDING_PAYMENT",
+        status: args.status ?? "paid",
         customer_name: args.customer.name,
         email: args.customer.email,
         phone: args.customer.phone,
