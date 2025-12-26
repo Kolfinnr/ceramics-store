@@ -1,10 +1,9 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { readCart, subscribeToCartChanges } from "@/lib/cart-storage";
 
-export default function CartLink({ style }: { style: CSSProperties }) {
+export default function CartLink({ className }: { className?: string }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -14,7 +13,7 @@ export default function CartLink({ style }: { style: CSSProperties }) {
   }, []);
 
   return (
-    <a href="/cart" style={style}>
+    <a href="/cart" className={className}>
       Cart{count > 0 ? ` (${count})` : ""}
     </a>
   );

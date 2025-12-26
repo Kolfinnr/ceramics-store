@@ -68,56 +68,28 @@ export default function CartView() {
   return (
     <section style={{ display: "grid", gap: 18 }}>
       {items.length === 0 ? (
-        <p style={{ fontSize: 18, color: "#444" }}>
+        <p style={{ fontSize: 18 }} className="muted">
           Your cart is empty. Browse the store to add items.
         </p>
       ) : (
         <>
           <div style={{ display: "grid", gap: 12 }}>
             {items.map((item) => (
-              <div
-                key={item.productSlug}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "120px 1fr auto",
-                  gap: 16,
-                  alignItems: "center",
-                  padding: 12,
-                  border: "1px solid #eee",
-                  borderRadius: 14,
-                }}
-              >
+              <div key={item.productSlug} className="cart-item">
                 {item.photo && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.photo}
-                    alt={item.productName}
-                    style={{
-                      width: 120,
-                      height: 120,
-                      objectFit: "cover",
-                      borderRadius: 12,
-                      border: "1px solid #eee",
-                    }}
-                  />
+                  <img src={item.photo} alt={item.productName} />
                 )}
                 <div style={{ display: "grid", gap: 6 }}>
                   <strong>{item.productName}</strong>
-                  <span style={{ color: "#555" }}>{item.pricePLN} PLN</span>
+                  <span className="muted">{item.pricePLN} PLN</span>
                   <a href={`/store/${item.productSlug}`} style={{ color: "#111" }}>
                     View item
                   </a>
                 </div>
                 <button
                   onClick={() => handleRemove(item.productSlug)}
-                  style={{
-                    border: "1px solid #111",
-                    background: "transparent",
-                    borderRadius: 10,
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
+                  className="button button-ghost"
                 >
                   Remove
                 </button>
@@ -125,14 +97,7 @@ export default function CartView() {
             ))}
           </div>
 
-          <div
-            style={{
-              borderTop: "1px solid #eee",
-              paddingTop: 16,
-              display: "grid",
-              gap: 12,
-            }}
-          >
+          <div className="cart-summary">
             <div style={{ fontSize: 18 }}>
               Total: <strong>{total} PLN</strong>
             </div>
@@ -140,36 +105,19 @@ export default function CartView() {
               <button
                 onClick={handleCheckout}
                 disabled={isLoading}
-                style={{
-                  border: "1px solid #111",
-                  background: "#111",
-                  color: "#fff",
-                  borderRadius: 12,
-                  padding: "12px 18px",
-                  cursor: "pointer",
-                  fontWeight: 700,
-                  opacity: isLoading ? 0.7 : 1,
-                }}
+                className="button button-primary"
               >
                 {isLoading ? "Redirecting..." : "Checkout"}
               </button>
               <button
                 onClick={handleClear}
-                style={{
-                  border: "1px solid #111",
-                  background: "transparent",
-                  color: "#111",
-                  borderRadius: 12,
-                  padding: "12px 18px",
-                  cursor: "pointer",
-                  fontWeight: 700,
-                }}
+                className="button button-outline"
               >
                 Clear cart
               </button>
             </div>
             {errorMessage && (
-              <p style={{ color: "#b00", fontWeight: 600 }}>{errorMessage}</p>
+              <p style={{ color: "#a1422d", fontWeight: 600 }}>{errorMessage}</p>
             )}
           </div>
         </>

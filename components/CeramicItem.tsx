@@ -87,35 +87,25 @@ export default function CeramicItem({
   };
 
   return (
-    <main style={{ padding: "32px 16px", maxWidth: 1100, margin: "0 auto" }}>
+    <main className="page-shell" style={{ paddingTop: 32 }}>
       {/* Header */}
-      <div style={{ display: "grid", gap: 10, marginBottom: 18 }}>
-        <h1 style={{ fontSize: 42, margin: 0, lineHeight: 1.1 }}>{title}</h1>
+      <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
+        <h1 className="section-title" style={{ lineHeight: 1.1 }}>
+          {title}
+        </h1>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <div className="detail-meta">
           {price != null && !Number.isNaN(price) && (
-            <div style={{ fontSize: 18, color: "#333" }}>{price} PLN</div>
+            <div style={{ fontSize: 18 }}>{price} PLN</div>
           )}
 
-          {!available && (
-            <div style={{ color: "#b00", fontWeight: 800 }}>Sold</div>
-          )}
+          {!available && <span className="pill badge-sold">Sold</span>}
         </div>
 
         {categories.length > 0 && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {categories.map((cat: string) => (
-              <span
-                key={cat}
-                style={{
-                  fontSize: 12,
-                  padding: "6px 10px",
-                  border: "1px solid #ddd",
-                  borderRadius: 999,
-                  color: "#333",
-                  background: "#fafafa",
-                }}
-              >
+              <span key={cat} className="pill">
                 {cat}
               </span>
             ))}
@@ -124,29 +114,12 @@ export default function CeramicItem({
       </div>
 
       {/* Main layout: gallery + description */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.35fr 1fr",
-          gap: 22,
-          alignItems: "start",
-        }}
-      >
+      <div className="detail-grid">
         {/* Gallery */}
-        <section style={{ display: "grid", gap: 12 }}>
+        <section className="detail-gallery" style={{ display: "grid", gap: 12 }}>
           {main && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={main}
-              alt={photos?.[0]?.alt || ""}
-              style={{
-                width: "100%",
-                height: 520,
-                objectFit: "cover",
-                borderRadius: 16,
-                border: "1px solid #eee",
-              }}
-            />
+            <img src={main} alt={photos?.[0]?.alt || ""} style={{ height: 520 }} />
           )}
 
           {rest.length > 0 && (
@@ -163,13 +136,7 @@ export default function CeramicItem({
                   key={p.id || p.filename}
                   src={p.filename}
                   alt={p.alt || ""}
-                  style={{
-                    width: "100%",
-                    height: 140,
-                    objectFit: "cover",
-                    borderRadius: 14,
-                    border: "1px solid #eee",
-                  }}
+                  style={{ height: 140 }}
                 />
               ))}
             </div>
@@ -177,82 +144,49 @@ export default function CeramicItem({
         </section>
 
         {/* Description */}
-        <aside
-          style={{
-            border: "1px solid #eee",
-            borderRadius: 16,
-            padding: 16,
-            background: "#fff",
-          }}
-        >
+        <aside className="detail-card">
           <h2 style={{ margin: 0, marginBottom: 10, fontSize: 18 }}>Details</h2>
 
-          <div style={{ fontSize: 16, lineHeight: 1.7, color: "#222" }}>
+          <div style={{ fontSize: 16, lineHeight: 1.7 }}>
             {c.description ? render(c.description) : <p>(No description yet.)</p>}
           </div>
 
           {/* Purchase actions */}
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #eee" }}>
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
             <div style={{ display: "grid", gap: 10 }}>
               <button
                 disabled={!available || isLoading}
                 onClick={handleCheckout}
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid #111",
-                  background: available ? "#111" : "#ddd",
-                  color: available ? "#fff" : "#666",
-                  fontWeight: 700,
-                  cursor: available ? "pointer" : "not-allowed",
-                  opacity: isLoading ? 0.7 : 1,
-                }}
+                className="button button-primary"
+                style={{ width: "100%" }}
               >
                 {available ? (isLoading ? "Redirecting..." : "Buy now") : "Sold"}
               </button>
               <button
                 disabled={!available}
                 onClick={handleAddToCart}
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid #111",
-                  background: "transparent",
-                  color: "#111",
-                  fontWeight: 700,
-                  cursor: available ? "pointer" : "not-allowed",
-                }}
+                className="button button-outline"
+                style={{ width: "100%" }}
               >
                 Add to cart
               </button>
             </div>
             {addedMessage && (
-              <p style={{ marginTop: 10, color: "#1a7f37", fontWeight: 600 }}>
+              <p style={{ marginTop: 12, color: "var(--sage-deep)", fontWeight: 600 }}>
                 {addedMessage}{" "}
-                <a href="/cart" style={{ color: "#1a7f37" }}>
+                <a href="/cart" style={{ color: "var(--sage-deep)" }}>
                   View cart
                 </a>
               </p>
             )}
             {errorMessage && (
-              <p style={{ marginTop: 10, color: "#b00", fontWeight: 600 }}>
+              <p style={{ marginTop: 12, color: "#a1422d", fontWeight: 600 }}>
                 {errorMessage}
               </p>
             )}
           </div>
         </aside>
       </div>
-
-      {/* Mobile fallback */}
-      <style>{`
-        @media (max-width: 900px) {
-          main > div:nth-child(2) {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </main>
   );
 }
