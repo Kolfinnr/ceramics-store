@@ -1,3 +1,5 @@
+import CartLink from "./CartLink";
+
 export default function Header() {
   return (
     <header
@@ -28,6 +30,7 @@ export default function Header() {
           <a href="/" style={linkStyle}>Home</a>
           <a href="/store" style={linkStyle}>Store</a>
           <a href="/about" style={linkStyle}>About</a>
+          <CartLink style={linkStyle} />
         </nav>
       </div>
     </header>
