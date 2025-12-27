@@ -96,7 +96,7 @@ export default function CeramicItem({
 
         <div className="detail-meta">
           {price != null && !Number.isNaN(price) && (
-            <div style={{ fontSize: 18 }}>{price} PLN</div>
+            <div className="price-highlight">{price} PLN</div>
           )}
 
           {!available && <span className="pill badge-sold">Sold</span>}
@@ -123,13 +123,7 @@ export default function CeramicItem({
           )}
 
           {rest.length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                gap: 10,
-              }}
-            >
+            <div className="photo-strip">
               {rest.map((p: any) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

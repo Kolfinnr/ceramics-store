@@ -1,11 +1,15 @@
 import CartLink from "./CartLink";
+import LogoMark from "./LogoMark";
 
 export default function Header() {
   return (
     <header className="site-header">
       <div className="site-header-inner">
         <a href="/" className="logo">
-          CERAMICS
+          <LogoMark />
+          <span className="logo-text">
+            Fajna <span>Ceramika</span>
+          </span>
         </a>
 
         <nav className="nav">
@@ -18,7 +22,7 @@ export default function Header() {
           <a href="/about" className="nav-link">
             About
           </a>
-          <CartLink className="nav-link" />
+          <CartLink className="nav-link cart-link" />
         </nav>
       </div>
     </header>

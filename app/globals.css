@@ -83,9 +83,39 @@ a {
   font-weight: 900;
   text-decoration: none;
   color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   letter-spacing: 0.08em;
   font-size: 14px;
   text-transform: uppercase;
+}
+
+.logo-text {
+  font-size: 13px;
+  letter-spacing: 0.35em;
+  font-weight: 700;
+  color: var(--sage-deep);
+}
+
+.logo-text span {
+  color: var(--ink);
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 2px solid rgba(123, 143, 121, 0.5);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f4ebdf, #fff);
+  box-shadow: 0 8px 18px rgba(31, 28, 26, 0.12);
+}
+
+.logo-mark svg {
+  width: 32px;
+  height: 32px;
 }
 
 .nav {
@@ -109,6 +139,22 @@ a {
   border-color: var(--border);
   background: #fff;
   box-shadow: 0 8px 20px rgba(31, 28, 26, 0.08);
+}
+
+.cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cart-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cart-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .card {
@@ -136,6 +182,24 @@ a {
   height: 280px;
   object-fit: cover;
   border-bottom: 1px solid var(--border);
+}
+
+.product-image-frame {
+  position: relative;
+}
+
+.price-tag {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 8px 18px rgba(31, 28, 26, 0.12);
+  border: 1px solid rgba(31, 28, 26, 0.08);
 }
 
 .pill {
@@ -233,6 +297,20 @@ select {
   object-fit: cover;
 }
 
+.photo-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(160px, 220px);
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+}
+
+.photo-strip img {
+  scroll-snap-align: start;
+}
+
 .detail-card {
   padding: 20px;
   background: #fff;
@@ -246,6 +324,16 @@ select {
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.price-highlight {
+  font-size: 22px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(211, 123, 90, 0.12);
+  color: var(--ink);
+  border: 1px solid rgba(211, 123, 90, 0.3);
 }
 
 .cart-item {
