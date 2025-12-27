@@ -29,24 +29,12 @@ export default function StoreGridClient({ products }: { products: any[] }) {
   }, [products, showSold, category]);
 
   return (
-    <div style={{ marginTop: 18 }}>
+    <div style={{ display: "grid", gap: 18 }}>
       {/* Controls */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          flexWrap: "wrap",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontWeight: 600 }}>Category</span>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{ padding: "8px 10px", borderRadius: 10, border: "1px solid #ddd" }}
-          >
+      <div className="filter-bar">
+        <label className="filter-label">
+          <span>Category</span>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
             {categories.map((c) => (
               <option key={c} value={c}>
                 {c === "all" ? "All" : c}
@@ -55,7 +43,7 @@ export default function StoreGridClient({ products }: { products: any[] }) {
           </select>
         </label>
 
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <label className="filter-label">
           <input
             type="checkbox"
             checked={showSold}
@@ -64,7 +52,7 @@ export default function StoreGridClient({ products }: { products: any[] }) {
           <span>Show sold</span>
         </label>
 
-        <div style={{ marginLeft: "auto", color: "#555" }}>
+        <div style={{ marginLeft: "auto" }} className="muted">
           Showing <strong>{filtered.length}</strong> item(s)
         </div>
       </div>
@@ -74,7 +62,7 @@ export default function StoreGridClient({ products }: { products: any[] }) {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: 16,
+          gap: 18,
         }}
       >
         {filtered.map((p: any) => (
