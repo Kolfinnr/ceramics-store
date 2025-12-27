@@ -21,7 +21,7 @@ export default function CartLink({ className }: { className?: string }) {
           <circle cx="17" cy="19" r="1.7" />
         </svg>
       </span>
-      Cart{count > 0 ? ` (${count})` : ""}
+      Cart{count > 0 ? <span className="cart-count">{count}</span> : null}
     </a>
   );
 }

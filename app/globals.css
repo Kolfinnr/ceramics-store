@@ -106,16 +106,17 @@ a {
   width: 44px;
   height: 44px;
   border-radius: 999px;
-  border: 2px solid rgba(123, 143, 121, 0.5);
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #f4ebdf, #fff);
+  background: #fff;
   box-shadow: 0 8px 18px rgba(31, 28, 26, 0.12);
+  overflow: hidden;
 }
 
-.logo-mark svg {
-  width: 32px;
-  height: 32px;
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .nav {
@@ -133,6 +134,10 @@ a {
   border: 1px solid transparent;
   transition: all 0.2s ease;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
 }
 
 .nav-link:hover {
@@ -155,6 +160,20 @@ a {
 .cart-icon svg {
   width: 18px;
   height: 18px;
+}
+
+.cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .card {
@@ -225,6 +244,7 @@ a {
   padding: 12px 18px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  line-height: 1;
 }
 
 .button:disabled {
