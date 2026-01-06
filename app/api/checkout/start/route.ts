@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { redis } from "@/lib/redis"; // <- use your existing Upstash client
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // If this causes issues, remove the apiVersion line
-  apiVersion: "2025-01-27.acacia",
-});
-
 type ReqBody = {
   productSlug: string;
   productName: string;
@@ -14,6 +9,15 @@ type ReqBody = {
 };
 
 export async function POST(req: Request) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ error: "Missing Stripe configuration" }, { status: 500 });
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    // If this causes issues, remove the apiVersion line
+    apiVersion: "2025-01-27.acacia",
+  });
+
   try {
     const body = (await req.json()) as
       | ReqBody
@@ -85,29 +89,43 @@ export async function POST(req: Request) {
       lockedKeys.push(lockKey);
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (!siteUrl) {
+      for (const key of lockedKeys) {
+        await redis.del(key);
+      }
+      return NextResponse.json({ error: "Missing site URL configuration" }, { status: 500 });
+    }
     const productSlugs = items.map((item) => item.productSlug);
     const primarySlug = productSlugs[0];
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: items.map((item) => ({
-        price_data: {
-          currency: "pln",
-          unit_amount: Math.round(item.pricePLN * 100),
-          product_data: { name: item.productName },
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: items.map((item) => ({
+          price_data: {
+            currency: "pln",
+            unit_amount: Math.round(item.pricePLN * 100),
+            product_data: { name: item.productName },
+          },
+          quantity: 1,
+        })),
+        shipping_address_collection: { allowed_countries: ["PL", "CZ", "DE", "SK", "AT"] },
+        phone_number_collection: { enabled: true },
+        expires_at: Math.floor(Date.now() / 1000) + lockTtlSeconds,
+        success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteUrl}/checkout/cancel?product=${encodeURIComponent(primarySlug)}`,
+        metadata: {
+          productSlug: primarySlug,
+          productSlugs: JSON.stringify(productSlugs),
         },
-        quantity: 1,
-      })),
-      shipping_address_collection: { allowed_countries: ["PL", "CZ", "DE", "SK", "AT"] },
-      phone_number_collection: { enabled: true },
-      expires_at: Math.floor(Date.now() / 1000) + lockTtlSeconds,
-      success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/checkout/cancel?product=${encodeURIComponent(primarySlug)}`,
-      metadata: {
-        productSlug: primarySlug,
-        productSlugs: JSON.stringify(productSlugs),
-      },
-    });
+      });
+    } catch (error) {
+      for (const key of lockedKeys) {
+        await redis.del(key);
+      }
+      throw error;
+    }
 
     // Store session id as lock value (helps debugging)
     for (const item of items) {
