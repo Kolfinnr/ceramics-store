@@ -3,15 +3,40 @@ import Stripe from "stripe";
 import { redis } from "@/lib/redis";
 import { createOrderStory } from "@/lib/storyblok-management";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-01-27.acacia",
-});
+function safeParseJson<T>(input: unknown, fallback: T): T {
+  if (typeof input !== "string") {
+    return fallback;
+  }
+  try {
+    return JSON.parse(input) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function getProductSlugs(session: Stripe.Checkout.Session) {
+  const productSlugsRaw = session.metadata?.productSlugs ?? [
+    session.metadata?.productSlug,
+  ];
+  if (Array.isArray(productSlugsRaw)) {
+    return productSlugsRaw;
+  }
+  return safeParseJson<string[]>(productSlugsRaw, []).filter(Boolean);
+}
 
 export async function POST(req: Request) {
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Missing Stripe configuration" }, { status: 500 });
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-01-27.acacia",
+  });
+
   const sig = req.headers.get("stripe-signature");
   if (!sig) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
 
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const rawBody = await req.text();
 
   let event: Stripe.Event;
@@ -25,17 +50,7 @@ export async function POST(req: Request) {
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const productSlugsRaw =
-        session.metadata?.productSlugs ?? JSON.stringify([session.metadata?.productSlug]);
-      const productSlugs = Array.isArray(productSlugsRaw)
-        ? productSlugsRaw
-        : (() => {
-            try {
-              return JSON.parse(productSlugsRaw ?? "[]") as string[];
-            } catch {
-              return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
-            }
-          })();
+      const productSlugs = getProductSlugs(session);
 
       if (productSlugs.length > 0) {
         for (const slug of productSlugs) {
@@ -73,17 +88,7 @@ export async function POST(req: Request) {
       event.type === "checkout.session.async_payment_failed"
     ) {
       const session = event.data.object as Stripe.Checkout.Session;
-      const productSlugsRaw =
-        session.metadata?.productSlugs ?? JSON.stringify([session.metadata?.productSlug]);
-      const productSlugs = Array.isArray(productSlugsRaw)
-        ? productSlugsRaw
-        : (() => {
-            try {
-              return JSON.parse(productSlugsRaw ?? "[]") as string[];
-            } catch {
-              return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
-            }
-          })();
+      const productSlugs = getProductSlugs(session);
       for (const slug of productSlugs) {
         await redis.del(`lock:product:${slug}`);
       }
