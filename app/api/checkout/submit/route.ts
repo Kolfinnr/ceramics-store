@@ -3,17 +3,26 @@ import Stripe from "stripe";
 import { redis } from "@/lib/redis";
 import { createOrderStory } from "@/lib/storyblok-management";
 
-function getProductSlugs(session: Stripe.Checkout.Session) {
-  const productSlugsRaw =
-    session.metadata?.productSlugs ?? JSON.stringify([session.metadata?.productSlug]);
-  if (Array.isArray(productSlugsRaw)) {
-    return productSlugsRaw;
+function safeParseJson<T>(input: unknown, fallback: T): T {
+  if (typeof input !== "string") {
+    return fallback;
   }
   try {
-    return JSON.parse(productSlugsRaw ?? "[]") as string[];
+    return JSON.parse(input) as T;
   } catch {
-    return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
+    return fallback;
   }
+}
+
+function getProductSlugs(session: Stripe.Checkout.Session) {
+  const productSlugsRaw = session.metadata?.productSlugs ?? session.metadata?.productSlug;
+  if (Array.isArray(productSlugsRaw)) {
+    return productSlugsRaw.filter(Boolean);
+  }
+  if (typeof productSlugsRaw === "string" && productSlugsRaw.length > 0) {
+    return safeParseJson<string[]>(productSlugsRaw, [productSlugsRaw]).filter(Boolean);
+  }
+  return session.metadata?.productSlug ? [session.metadata.productSlug] : [];
 }
 
 export async function POST(req: Request) {
