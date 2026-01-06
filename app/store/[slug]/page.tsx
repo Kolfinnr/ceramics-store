@@ -6,9 +6,9 @@ import { redis } from "@/lib/redis";
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   const token = process.env.STORYBLOK_TOKEN;
   if (!token) return <main style={{ padding: 40 }}>Missing STORYBLOK_TOKEN</main>;
