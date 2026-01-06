@@ -127,6 +127,13 @@ export async function POST(req: Request) {
       throw error;
     }
 
+    if (!session.url) {
+      for (const key of lockedKeys) {
+        await redis.del(key);
+      }
+      return NextResponse.json({ error: "Checkout session unavailable" }, { status: 500 });
+    }
+
     // Store session id as lock value (helps debugging)
     for (const item of items) {
       const lockKey = `lock:product:${item.productSlug}`;
